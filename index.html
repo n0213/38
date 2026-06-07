@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>에델리아 대륙 인물록</title>
+<style>
+:root{
+  --bg:#080608;--leather:#2c1a0e;--leather-light:#4a2e1b;
+  --paper:#f0e6d3;--paper-dark:#d9c9b4;--ink:#1e1510;
+  --title:#6b1a1a;--gold:#c9a227;--gold-dim:#7a5e10;--mark:#8b0000;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+::selection{background:var(--gold-dim);color:#fff;}
+body{background:var(--bg);background-image:radial-gradient(ellipse at 50% 40%,#1c1220 0%,#000 100%);font-family:'Batang','Georgia',serif;color:var(--ink);min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:6px;}::-webkit-scrollbar-track{background:var(--paper-dark);}::-webkit-scrollbar-thumb{background:var(--leather);border-radius:3px;}
+
+/* ══ BOOK SCENE ══ */
+#book-scene{display:flex;align-items:center;justify-content:center;min-height:100vh;perspective:2000px;padding:30px 20px;}
+.book-wrap{width:min(980px,96vw);height:min(680px,90vh);position:relative;transform-style:preserve-3d;filter:drop-shadow(0 30px 60px rgba(0,0,0,.85));}
+.book-inner{width:100%;height:100%;display:flex;background:linear-gradient(to right,#f5ead8 0%,var(--paper) 48%,#e5d5be 100%);border-radius:4px 14px 14px 4px;border:4px solid var(--leather);overflow:hidden;position:relative;}
+.book-inner::before{content:'';position:absolute;left:0;top:0;bottom:0;width:28px;background:linear-gradient(to right,#0d0604,#3a2010,#1a0c04);z-index:20;box-shadow:inset -4px 0 12px rgba(0,0,0,.4),4px 0 8px rgba(0,0,0,.4);}
+
+/* ══ 표지 ══ */
+#cover{position:absolute;inset:-4px;background:linear-gradient(105deg,#0e0604 0%,#2a1509 4%,#4a2e1b 18%,#3a2010 88%,#130805 100%);border-radius:4px 14px 14px 4px;border:3px solid var(--gold-dim);display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gold);cursor:pointer;z-index:30;transform-origin:left center;transition:transform 1.3s cubic-bezier(.645,.045,.355,1),opacity 1.1s;box-shadow:inset 0 0 60px rgba(0,0,0,.5),inset -8px 0 30px rgba(0,0,0,.3);}
+#cover.open{transform:rotateY(-138deg);opacity:0;pointer-events:none;}
+.cover-frame{position:absolute;inset:18px 18px 18px 36px;border:1.5px solid var(--gold-dim);outline:1px solid rgba(201,162,39,.3);outline-offset:-6px;pointer-events:none;}
+#cover h1{font-size:clamp(2.2rem,5vw,3.8rem);letter-spacing:.3em;text-shadow:2px 2px 8px rgba(0,0,0,.8),0 0 20px var(--gold-dim);text-align:center;line-height:1.3;margin-bottom:14px;}
+#cover .sub{font-size:clamp(.85rem,1.5vw,1.1rem);color:#9a7a35;letter-spacing:.15em;margin-bottom:40px;}
+#cover .hint{font-size:.8rem;color:rgba(201,162,39,.4);animation:pulse 2.5s infinite;}
+@keyframes pulse{0%,100%{opacity:.4;}50%{opacity:1;text-shadow:0 0 10px var(--gold);}}
+
+/* ══ 책갈피 ══ */
+.bookmark{position:absolute;top:-18px;right:70px;width:40px;height:90px;background:linear-gradient(to bottom,#c00,var(--mark));z-index:35;cursor:pointer;box-shadow:2px 2px 8px rgba(0,0,0,.5);transition:top .35s cubic-bezier(.175,.885,.32,1.275);clip-path:polygon(0 0,100% 0,100% 80%,50% 100%,0 80%);}
+.bookmark:hover{top:-6px;}
+.bookmark::after{content:'★';color:var(--gold);position:absolute;bottom:18px;left:50%;transform:translateX(-50%);font-size:16px;}
+
+/* ══ 페이지 공통 ══ */
+.page{flex:1;padding:clamp(22px,4vw,50px) clamp(18px,4vw,56px);overflow-y:auto;overflow-x:hidden;position:relative;display:none;}
+.page::after{content:'';position:absolute;inset:0;background:url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9InJnYmEoMCwwLDAsLjAyKSIvPjwvc3ZnPg==') repeat;pointer-events:none;z-index:0;}
+.page>*{position:relative;z-index:1;}
+.page.active{display:block;animation:pageIn .7s cubic-bezier(.25,1,.5,1);}
+@keyframes pageIn{from{opacity:0;transform:rotateY(12deg) translateX(-16px);}to{opacity:1;transform:rotateY(0) translateX(0);}}
+.left-page{border-right:1px solid rgba(139,90,43,.25);background:linear-gradient(to right,#f0e3cc 0%,var(--paper) 70%,#cebfa8 100%);box-shadow:inset -20px 0 28px -16px rgba(0,0,0,.45);padding-left:clamp(30px,5vw,60px);}
+.right-page{background:linear-gradient(to left,#f0e3cc 0%,var(--paper) 70%,#cebfa8 100%);box-shadow:inset 20px 0 28px -16px rgba(0,0,0,.45);}
+.page-num{text-align:right;font-size:.75rem;color:#999;margin-bottom:16px;font-style:italic;letter-spacing:.05em;}
+
+/* ══ 타이포그래피 ══ */
+h2,h3{color:var(--title);border-bottom:1.5px solid var(--gold-dim);padding-bottom:12px;margin-bottom:20px;font-size:clamp(1.2rem,2.5vw,1.6rem);letter-spacing:.1em;position:relative;}
+h2::after{content:'✦';position:absolute;right:0;bottom:-9px;color:var(--gold-dim);font-size:11px;background:var(--paper);padding:0 5px;}
+.drop-cap::first-letter{font-size:3rem;float:left;line-height:1;margin-right:7px;color:var(--title);border:1px solid var(--gold-dim);background:rgba(201,162,39,.08);padding:4px 6px;border-radius:2px;}
+p{line-height:1.85;font-size:clamp(.95rem,1.6vw,1.05rem);margin-bottom:16px;text-align:justify;word-break:keep-all;}
+ul{list-style:none;padding:0;margin-bottom:16px;}
+li{margin-bottom:14px;line-height:1.75;font-size:clamp(.9rem,1.5vw,1.05rem);padding-left:22px;position:relative;}
+li::before{content:'▰';position:absolute;left:0;top:3px;color:var(--gold-dim);font-size:.75rem;}
+
+/* ══ 목차·버튼 ══ */
+.toc-link{display:block;text-decoration:none;color:var(--ink);font-size:clamp(1rem,1.8vw,1.2rem);padding:11px 14px;border-bottom:1px dashed rgba(139,90,43,.4);transition:all .3s;cursor:pointer;position:relative;overflow:hidden;}
+.toc-link::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(139,90,43,.12),transparent);transition:left .45s;}
+.toc-link:hover::before{left:100%;}
+.toc-link:hover{color:var(--title);padding-left:24px;font-weight:bold;}
+.faction-btn{display:flex;align-items:center;justify-content:space-between;width:100%;background:rgba(255,255,255,.28);border:1.5px solid var(--gold-dim);border-radius:5px;padding:14px 18px;margin-bottom:12px;font-family:'Batang',serif;font-size:clamp(1rem,1.6vw,1.2rem);font-weight:bold;cursor:pointer;transition:all .35s;color:var(--ink);box-shadow:2px 2px 0 rgba(139,90,43,.15);}
+.faction-btn:hover{background:var(--leather);color:var(--gold);transform:translateY(-2px);box-shadow:4px 6px 14px rgba(0,0,0,.28);border-color:var(--gold);}
+.faction-btn span.arr{opacity:0;transform:translateX(-8px);transition:all .3s;}
+.faction-btn:hover span.arr{opacity:1;transform:translateX(0);}
+.nav-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;background:transparent;color:var(--title);border:1.5px solid var(--title);cursor:pointer;border-radius:4px;font-family:'Batang',serif;font-size:.9rem;font-weight:bold;transition:all .25s;}
+.nav-btn:hover{background:var(--title);color:var(--paper);transform:translateX(-2px);}
+
+/* ══ 인물 카드 ══ */
+@keyframes slideUp{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+#character-content{animation:slideUp .5s ease-out;}
+.char-block{margin-bottom:52px;border-bottom:1.5px dashed #bba37d;padding-bottom:28px;}
+.char-block:last-child{border-bottom:none;}
+.char-name{font-size:clamp(1.2rem,2.5vw,1.6rem);margin-bottom:12px;color:var(--title);}
+.char-grid{display:grid;grid-template-columns:80px 1fr;gap:10px 8px;background:rgba(255,255,255,.38);border:1px solid rgba(139,90,43,.25);padding:14px;border-radius:4px;margin-bottom:14px;font-size:.9rem;}
+.gl{font-weight:bold;color:var(--title);text-align:right;padding-right:8px;border-right:1.5px solid var(--gold-dim);}
+.gv{color:#111;}
+.char-imgbox{width:100%;height:clamp(180px,28vw,300px);overflow:hidden;border:5px solid #111;outline:1.5px solid var(--gold-dim);outline-offset:3px;box-shadow:4px 4px 14px rgba(0,0,0,.45);margin-bottom:16px;background:#111;position:relative;}
+.char-imgbox::before{content:'초상화 불러오는 중...';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#555;font-size:.85rem;}
+.char-img{width:100%;height:100%;object-fit:cover;object-position:top center;transition:transform .7s cubic-bezier(.25,.46,.45,.94);position:relative;z-index:1;}
+.char-imgbox:hover .char-img{transform:scale(1.07) translateY(-2%);}
+.thumb-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-top:14px;}
+.thumb-row::-webkit-scrollbar{height:4px;}
+.thumb-row::-webkit-scrollbar-thumb{background:var(--leather);border-radius:2px;}
+.thumb-row img{flex-shrink:0;width:clamp(80px,15vw,110px);height:clamp(80px,15vw,110px);object-fit:cover;border:2px solid #333;transition:transform .2s,border-color .2s;cursor:pointer;}
+.thumb-row img:hover{transform:scale(1.06);border-color:var(--gold);}
+.tooltip{position:relative;display:inline-block;border-bottom:1px dotted var(--title);cursor:help;}
+.tooltip .tt{visibility:hidden;opacity:0;width:200px;background:var(--leather);color:var(--paper);font-size:.8rem;line-height:1.5;text-align:center;border-radius:5px;padding:9px;position:absolute;z-index:100;bottom:130%;left:50%;margin-left:-100px;border:1px solid var(--gold-dim);box-shadow:0 5px 14px rgba(0,0,0,.5);transition:opacity .25s;}
+.tooltip:hover .tt{visibility:visible;opacity:1;}
+
+/* ══ 모바일 슬라이드 패널 ══ */
+#mobile-char-panel{
+  display:none;
+  position:fixed;inset:0;
+  background:var(--paper);
+  z-index:100;
+  overflow-y:auto;
+  transform:translateX(100%);
+  transition:transform .38s cubic-bezier(.25,.46,.45,.94);
+}
+#mobile-char-panel.open{transform:translateX(0);}
+.mcp-header{
+  position:sticky;top:0;z-index:10;
+  background:var(--leather);
+  color:var(--gold);
+  padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+  box-shadow:0 2px 8px rgba(0,0,0,.3);
+}
+.mcp-back{
+  background:transparent;border:1.5px solid var(--gold-dim);
+  color:var(--gold);padding:6px 14px;border-radius:4px;
+  font-family:'Batang',serif;font-size:.9rem;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+}
+.mcp-back:hover{background:var(--gold-dim);color:#fff;}
+.mcp-title{font-size:1rem;letter-spacing:.1em;opacity:.8;}
+.mcp-body{padding:24px 20px;}
+
+/* ══ 반응형 ══ */
+@media(max-width:680px){
+  #book-scene{padding:0;align-items:flex-start;min-height:unset;}
+  .book-wrap{width:100%;height:auto;filter:none;}
+  .book-inner{flex-direction:column;border-radius:0;border-left:none;border-right:none;height:auto;min-height:100vh;}
+  .book-inner::before{display:none;}
+  #cover{border-radius:0;inset:-4px;}
+  #cover.open{transform:rotateY(0) translateY(-100%);opacity:0;}
+  .left-page,.right-page{border-right:none;box-shadow:none;background:var(--paper);padding:28px 22px;}
+  .left-page{border-bottom:2px solid rgba(139,90,43,.25);padding-left:22px;}
+  .page{display:none;width:100%;}
+  .page.active{display:block;}
+  .bookmark{right:20px;top:-16px;width:34px;height:76px;}
+  h2{font-size:1.2rem;}
+  .drop-cap::first-letter{font-size:2.4rem;}
+  #mobile-char-panel{display:block;}/* 모바일엔 패널 활성화 */
+}
+@media(min-width:681px) and (max-width:900px){
+  .book-wrap{height:min(640px,90vh);}
+  .page{padding:28px 28px;}
+  .char-imgbox{height:220px;}
+}
+
+/* ══ WEBNOVEL ══ */
+#webnovel-ui{display:none;min-height:100vh;background:#0c0c14;font-family:'Malgun Gothic','Apple SD Gothic Neo',sans-serif;color:#e0e0e0;}
+.wn-topbar{position:sticky;top:0;z-index:50;background:#0c0c14;border-bottom:1px solid #1e1e2a;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(8px);}
+.wn-topbar h1{font-size:clamp(1.1rem,3vw,1.6rem);color:#fff;font-weight:800;letter-spacing:-.02em;}
+.btn-back{padding:8px 18px;background:linear-gradient(135deg,#8b0000,#5c1616);color:#fff;cursor:pointer;border:1px solid #ff6666;border-radius:30px;font-weight:bold;font-size:.85rem;transition:all .25s;white-space:nowrap;}
+.btn-back:hover{background:linear-gradient(135deg,#aa0000,#7a2020);transform:translateY(-1px);}
+.wn-body{max-width:960px;margin:0 auto;padding:30px 20px;}
+.wn-meta{background:#13131e;border:1px solid #1e1e2a;border-radius:10px;padding:20px 24px;margin-bottom:28px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+.wn-meta .badge{background:#1e1e2a;border:1px solid #2a2a3a;border-radius:20px;padding:5px 14px;font-size:.85rem;color:#aaa;}
+.wn-meta .badge.live{border-color:#ff4d4d;color:#ff6b6b;}
+.wn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px;}
+@media(max-width:480px){.wn-grid{grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:8px;}}
+.ch-item{background:#16161f;border:1px solid #22223a;border-radius:8px;padding:14px 8px;text-align:center;cursor:pointer;font-size:1rem;font-weight:600;transition:all .2s;}
+.ch-item:hover{background:#1e1e2e;border-color:#3a3a5a;transform:translateY(-3px);color:#fff;}
+.ch-item.locked{color:#444;background:#111118;border-style:dashed;cursor:not-allowed;}
+.ch-item.locked::after{content:'🔒';display:block;margin-top:4px;font-size:1rem;opacity:.5;}
+.ch-item.locked:hover{transform:none;background:#111118;border-color:#ff4444;}
+
+/* ══ VIEWER MODAL ══ */
+#viewer-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:200;align-items:center;justify-content:center;backdrop-filter:blur(6px);animation:fadeM .25s ease;}
+@keyframes fadeM{from{opacity:0;}to{opacity:1;}}
+.viewer-box{background:#fff;color:#1a1a1a;width:min(820px,94vw);height:88vh;border-radius:12px;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 60px rgba(0,0,0,.7);}
+.v-head{padding:16px 24px;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;background:#fdfdfd;flex-shrink:0;}
+.v-head h2{font-size:clamp(1rem,2.5vw,1.4rem);color:#111;font-family:'Malgun Gothic',sans-serif;letter-spacing:0;}
+.v-close{font-size:2rem;cursor:pointer;color:#999;line-height:1;transition:color .2s;}
+.v-close:hover{color:#cc0000;}
+.v-body{padding:clamp(22px,5vw,44px) clamp(20px,6vw,54px);overflow-y:auto;flex:1;font-size:clamp(1rem,2vw,1.2rem);line-height:2.1;font-family:'KoPub Batang','Batang',serif;text-align:justify;word-break:keep-all;color:#1a1a1a;}
+.v-body::-webkit-scrollbar{width:6px;}
+.v-body::-webkit-scrollbar-thumb{background:#ccc;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- ══════ BOOK SCENE ══════ -->
+<div id="book-scene">
+<div class="book-wrap">
+  <div class="bookmark" onclick="triggerEasterEgg()" title="어딘가 이질적인 붉은 책갈피다."></div>
+  <div class="book-inner">
+    <div id="cover" onclick="openBook()">
+      <div class="cover-frame"></div>
+      <h1>제국 인물록</h1>
+      <p class="sub">── 아스테른의 은밀한 기록 ──</p>
+      <p class="hint">[클릭하여 책장 넘기기]</p>
+    </div>
+
+    <!-- 왼쪽: 목차 -->
+    <div class="page left-page active" id="page-left">
+      <h2 class="drop-cap">목차</h2>
+      <p style="color:#777;font-size:.88rem;font-style:italic;border-bottom:1px dashed var(--paper-dark);padding-bottom:12px;margin-bottom:20px;">이 기록은 제국의 그림자 속에서 엮인 것이니, 함부로 발설하지 말라.</p>
+      <nav>
+        <a class="toc-link" onclick="turnPage('history')"><span style="color:var(--gold-dim);margin-right:8px;">Ⅰ.</span> 대륙의 역사와 외교</a>
+        <a class="toc-link" onclick="turnPage('royal')"><span style="color:var(--gold-dim);margin-right:8px;">Ⅱ.</span> 아스테른 황가</a>
+        <a class="toc-link" onclick="turnPage('factions')"><span style="color:var(--gold-dim);margin-right:8px;">Ⅲ.</span> 주요 가문 및 세력</a>
+      </nav>
+      <div style="margin-top:40px;">
+        <h3 style="font-size:.95rem;border:none;margin-bottom:8px;padding:0;">열람 규칙 <span class="tooltip">ⓘ<span class="tt">제국 보안 등급 C급 인가자 전용 규칙.</span></span></h3>
+        <ul style="font-size:.85rem;color:#666;">
+          <li>제 3장에서 세력 엠블럼을 선택하면 인물 상세 기록이 표시됨.</li>
+          <li>모든 인물은 <b>18세 이상 성년</b> 기준으로 기록됨.</li>
+          <li>붉은 책갈피는 건드리지 않는 것을 권장함.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 1장 -->
+    <div class="page right-page active" id="page-history">
+      <div class="page-num">제 1장</div>
+      <h2>대륙과 제국의 서막</h2>
+      <p class="drop-cap">에델리아 대륙의 중심에는 강대국 <strong>아스테른 제국</strong>이 자리하고 있다. 건국기, 대륙 중앙의 소국이었던 아스테른은 귀족 연맹을 거쳐 초대 황제 레온 아스테른의 정복 전쟁과 포섭으로 통일 제국을 이룩했다.</p>
+      <p><b>새벽의 탑</b>은 전쟁 마법과 결계를 지원했고, <b>루미나 신전</b>은 황제를 태양의 선택으로 공인하며 협력했다. 그러나 이는 철저한 상호 견제와 불신 위에서 이뤄진 아슬아슬한 동맹이었다.</p>
+      <h3>균열과 긴장의 현재</h3>
+      <ul>
+        <li><strong>현 황제 클라우스:</strong> 황권 강화를 시도하며 대귀족들의 묵은 불만을 자아내고 있음.</li>
+        <li><strong>독자 세력:</strong> 마탑은 황실의 통제를 벗어난 기류를 보이고, 신전은 성녀성을 내세워 정치를 간섭하려 듦.</li>
+        <li><strong>외부 위협:</strong> 서쪽 사막의 알카디아 왕국과는 불안정한 평화 유지 중. 볼모인 알카디아 왕자로 인해 외교적 긴장 상태.</li>
+      </ul>
+      <p style="text-align:center;color:var(--gold-dim);margin-top:30px;">✧ ✧ ✧</p>
+    </div>
+
+    <!-- 2장: 황가 -->
+    <div class="page right-page" id="page-royal">
+      <div class="page-num">제 2장</div>
+      <h2>아스테른 황가</h2>
+      <p class="drop-cap">아스테른 제국의 정점이자 에델리아 대륙을 굽어보는 태양. 현 황제 클라우스의 철권 통치 아래 겉으로는 평온해 보이나, 백장미궁 대리석 바닥 아래로는 피비린내 나는 후계 구도와 파벌 싸움이 치열하게 얽혀 있다.</p>
+      <ul style="margin-top:24px;">
+        <li><strong style="color:var(--title);font-size:1.1rem;">👑 클라우스 레온하르트 아스테른 (황제, 52세)</strong><br><span style="font-size:.92rem;color:#444;line-height:1.7;display:block;margin-top:4px;">제국의 절대적인 지배자. 권위적이고 계산적이며, 자신의 가족조차 체스판의 말처럼 다루는 냉혹한 통치자.</span></li>
+        <li style="margin-top:18px;"><strong style="color:var(--title);font-size:1.1rem;">👸 로잘린드 아델하이트 아스테른 (황후, 46세)</strong><br><span style="font-size:.92rem;color:#444;line-height:1.7;display:block;margin-top:4px;">블레어 공작가 출신으로 황궁 권력의 실질적 중심. 우아함 속에 날카로운 칼을 감추고 있음.</span></li>
+        <li style="margin-top:18px;"><strong style="color:var(--title);font-size:1.1rem;">🦁 에드리안 발렌티누스 아스테른 (황태자, 25세)</strong><br><span style="font-size:.92rem;color:#444;line-height:1.7;display:block;margin-top:4px;">제국의 공식 후계자. 극심한 여자 공포증을 앓고 있어 여성의 근접을 허용하지 않으나, 이는 극소수의 측근만 아는 기밀.</span></li>
+        <li style="margin-top:18px;"><strong style="color:var(--title);font-size:1.1rem;">🐍 레이너 루시우스 아스테른 (2황자, 24세)</strong><br><span style="font-size:.92rem;color:#444;line-height:1.7;display:block;margin-top:4px;">능글맞은 미소 뒤에 깊은 야심을 숨긴 황자. 사교계와 귀족들을 교묘히 포섭하며 독자적인 세력을 구축 중.</span></li>
+        <li style="margin-top:18px;"><strong style="color:var(--title);font-size:1.1rem;">🧩 리오넬 & 엘리제 (12세 / 9세)</strong><br><span style="font-size:.92rem;color:#444;line-height:1.7;display:block;margin-top:4px;">눈치 빠른 3황자와 어른스러운 척하는 1황녀. 미성년이나 이미 정치적 상징으로 소비됨.</span></li>
+      </ul>
+    </div>
+
+    <!-- 3장: 세력 목록 -->
+    <div class="page right-page" id="page-factions">
+      <div class="page-num">제 3장</div>
+      <h2>주요 가문 및 세력</h2>
+      <p>제국의 거대한 수레바퀴를 굴리는 축들. 열람하고자 하는 세력을 선택하라.</p>
+      <div style="margin-top:28px;">
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[황후파 근접 사교계 맹주]</p>
+          <button class="faction-btn" onclick="showCharacter('arden')"><span>⚜ 아르덴 후작가</span><span class="arr">→</span></button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[제국 최상위 중립 권력]</p>
+          <button class="faction-btn" onclick="showCharacter('balmont')"><span>⚜ 발몽 공작가</span><span class="arr">→</span></button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[독자적 마법 기관]</p>
+          <button class="faction-btn" onclick="showCharacter('tower')"><span>🗼 새벽의 탑</span><span class="arr">→</span></button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[여신 루미나의 대리인]</p>
+          <button class="faction-btn" onclick="showCharacter('temple')"><span>🌿 루미나 신전</span><span class="arr">→</span></button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[제국의 그림자]</p>
+          <button class="faction-btn" onclick="showCharacter('alley')"><span>💰 잿빛거리 & 황금까마귀</span><span class="arr">→</span></button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[황실 & 황궁 인물]</p>
+          <button class="faction-btn" onclick="showCharacter('royal')"><span>👑 황실 관련 인물</span><span class="arr">→</span></button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[사교계 & 기타]</p>
+          <button class="faction-btn" onclick="showCharacter('social')"><span>🎭 사교계 & 기타 인물</span><span class="arr">→</span></button>
+        </div>
+        <div style="margin-bottom:16px;">
+          <p style="margin:0 0 4px;font-size:.88rem;color:#555;font-weight:bold;">[국경 & 외교]</p>
+          <button class="faction-btn" onclick="showCharacter('border')"><span>🌐 변경백 & 외교 인물</span><span class="arr">→</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 인물 상세 (PC용) -->
+    <div class="page right-page" id="page-character">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <button class="nav-btn" onclick="turnPage('factions')">◀ 세력 목록</button>
+        <div class="page-num" style="margin:0;">상세 기록</div>
+      </div>
+      <div id="character-content">
+        <div style="text-align:center;margin-top:120px;color:#a08c5b;font-style:italic;"><p>먼지가 쌓인 기록을 탐색하는 중...</p></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════ 모바일 슬라이드 패널 ══════ -->
+<div id="mobile-char-panel">
+  <div class="mcp-header">
+    <button class="mcp-back" onclick="closeMobilePanel()">◀ 세력 목록</button>
+    <span class="mcp-title">상세 기록</span>
+  </div>
+  <div class="mcp-body" id="mobile-char-content"></div>
+</div>
+
+<!-- ══════ WEBNOVEL ══════ -->
+<div id="webnovel-ui">
+  <div class="wn-topbar">
+    <h1>숨겨진 원작 연재처</h1>
+    <button class="btn-back" onclick="closeWebNovel()">◀ 고서로 돌아가기</button>
+  </div>
+  <div class="wn-body">
+    <div class="wn-meta">
+      <span style="color:#fff;font-weight:700;font-size:1.1rem;">에델리아 인물록 — 원작</span>
+      <span class="badge live">연재 중</span>
+      <span class="badge">총 300화</span>
+      <span class="badge">1~3화 무료</span>
+    </div>
+    <div class="wn-grid" id="chapter-list"></div>
+  </div>
+</div>
+
+<!-- ══════ VIEWER MODAL ══════ -->
+<div id="viewer-modal">
+  <div class="viewer-box">
+    <div class="v-head">
+      <h2 id="viewer-title">제 1화</h2>
+      <span class="v-close" onclick="closeViewer()">×</span>
+    </div>
+    <div class="v-body" id="viewer-text">
+      <p style="color:#aaa;font-style:italic;text-align:center;margin-top:60px;">(웹소설 내용을 여기에 작성하세요)</p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════
+   인물 데이터
+════════════════════════════════════ */
+function charBlock(code, emoji, name, info, desc, thumbCount, maxThumb){
+  // maxThumb: 17세 이하는 3까지만
+  const max = maxThumb || thumbCount;
+  let thumbs = '';
+  for(let i=2;i<=max;i++){
+    thumbs+=`<img src="https://raw.githubusercontent.com/n0213/38/refs/heads/main/${code}-${i}.png" alt="">`;
+  }
+  return `
+  <div class="char-block">
+    <h3 class="char-name">${emoji} ${name}</h3>
+    <div class="char-grid">${info}</div>
+    <div class="char-imgbox"><img src="https://raw.githubusercontent.com/n0213/38/refs/heads/main/${code}-1.png" class="char-img" alt="${name}"></div>
+    <p>${desc}</p>
+    ${thumbs?`<div class="thumb-row">${thumbs}</div>`:''}
+  </div>`;
+}
+
+function gi(label,val){return `<div class="gl">${label}</div><div class="gv">${val}</div>`;}
+
+const charData = {
+  arden:
+    charBlock('A','👸','이벨리나 로제 아르덴',
+      gi('신분','후작영애 (20세)')+gi('성향','황후파 / 중립귀족파')+gi('외형','적발, 청안, 긴곱슬'),
+      '스무 살의 나이에 사교계 권력의 핵심에 서 있는 후작가 영애. 겉으로는 냉정해 보이지만, 이는 유서 깊은 가문의 체면과 사교계의 압박 속에서 형성된 복잡한 내면의 잣대에 기인한다.',5)+
+    charBlock('N','⚜','셀리안 로웬 아르덴',
+      gi('신분','후작가 장남 (22세)')+gi('성향','중립귀족파 / 정치무관심')+gi('외형','적발, 청안, 짧은곱슬'),
+      '동생 이벨리나를 툴툴대며 놀리면서도 뒤에서는 철저하게 챙기는 전형적인 현실 오빠. 장난기가 많고 제국의 복잡한 정치판보다는 일상의 여유를 즐긴다.',5)+
+    charBlock('O','⚜','세드릭 노엘 아르덴',
+      gi('신분','후작가 차남 (22세)')+gi('성향','중립귀족파 / 황후파')+gi('외형','적발, 청안, 짧은곱슬, 안경'),
+      '가문의 브레인 역할을 하는 차남. 뛰어난 관찰력으로 조용히 상황을 주시하며, 가족을 위해 보이지 않는 곳에서 세심하게 움직인다.',5),
+
+  balmont:
+    charBlock('D','⚜','카르웬 에른스트 발몽',
+      gi('신분','공작 (27세)')+gi('성향','중립귀족파')+gi('외형','흑발, 회안, 짧은머리'),
+      '제국 최상위 권력을 쥔 발몽 공작가의 가주. 매사에 냉정하고 절제된 태도를 유지하며 묵묵히 책임을 다한다. 백 마디 말보다 한 번의 행동으로 증명하는 굳건한 성정이다.',5),
+
+  tower:
+    charBlock('E','🗼','아르센 녹스 베르타인',
+      gi('신분','후작 / 마탑주 (29세)')+gi('성향','탑독립파')+gi('외형','은발, 자안, 짧은머리'),
+      '새벽의 탑을 이끄는 마탑주. 제국 전체를 흥미로운 관찰 대상으로 여기며 때로는 오만하고 나른한 태도로 황실마저 아래로 내려다본다.',5)+
+    charBlock('Q','🕊','루카 밀렌 애쉬',
+      gi('신분','평민 / 탑소속 마법사 (23세)')+gi('성향','정치무관심')+gi('외형','하늘색머리, 녹안, 짧은곱슬'),
+      '새벽의 탑 소속 마법사로 늘 시끄럽게 사고를 치고 다니는 인물. 매일같이 보고서 제출을 미뤄 동료 이안에게 잔소리를 듣는 것이 일상이다.',5)+
+    charBlock('R','🗼','이안 에리크 크레인',
+      gi('신분','하급귀족 / 기록마법사 (24세)')+gi('성향','탑독립파 / 중립귀족파')+gi('외형','녹발, 회안, 단발, 안경'),
+      '탑의 기록 마법사로 조용하고 깐깐한 성격. 독설을 서슴지 않으며 매번 루카가 친 사고를 수습하느라 골머리를 앓는다.',5),
+
+  temple:
+    charBlock('W','⛪','라비엘 세라프 오르티스',
+      gi('신분','신관 (27세)')+gi('성향','신전권위파')+gi('외형','은발, 금안, 긴머리'),
+      '다정하고 차분한 미소 뒤에 깊은 속내를 감춘 신관. 신의 뜻을 명분 삼아 자연스럽게 정치판에 개입하며, 한 번 쥔 주도권은 결코 쉽게 놓지 않는다.',5)+
+    charBlock('V','🌿','유리엔 페일 클레멘스',
+      gi('신분','신입사제 (21세)')+gi('성향','친신전파')+gi('외형','청발, 백안, 짧은곱슬'),
+      '루미나 여신을 향한 깊은 신앙심을 품고 건전한 삶을 추구하는 신입 사제. 누구에게나 진실되고 다정하게 대하지만, 현실의 탁류 속에서 흔들리고 상처받을 여지가 많다.',5),
+
+  alley:
+    charBlock('P','💰','제이든 라스 베일런',
+      gi('신분','자작가 아들 / 뒷골목 상인 (24세)')+gi('성향','실리파')+gi('외형','적발, 금안, 목덮는머리'),
+      '자작가의 아들이라는 귀족 신분을 가졌으나 잿빛 거리와 암시장을 무대로 활동하는 상인. 거래에 있어서만큼은 지독할 정도로 냉정하다.',5)+
+    charBlock('X','💰','베르너 크로우 블랙웰',
+      gi('신분','황금까마귀 도박장 주인 (38세)')+gi('성향','실리파')+gi('외형','흑발, 적안, 짧은머리'),
+      '비밀 도박장 황금까마귀를 운영하며 귀족들의 빚과 은밀한 약점을 틀어쥔 뒷골목의 실력자. 농담을 던지는 듯한 태도 속에서 위험한 정보와 거래를 교환한다.',5)+
+    charBlock('Y','💰','로건 바르크',
+      gi('신분','무소속 용병 (36세)')+gi('성향','실리파')+gi('외형','흑발, 금안, 짧은머리, 흉터'),
+      '감정이나 도덕성보다는 철저한 계약과 생존 본능에 따라 움직이는 베테랑 용병. 말수가 적고 무덤덤하며, 돈을 받은 일은 확실하게 처리한다.',5),
+
+  royal:
+    charBlock('H','👑','클라우스 레온하르트 아스테른',
+      gi('신분','황제 (52세)')+gi('성향','황권절대')+gi('외형','금발, 청안, 짧은머리'),
+      '제국의 절대적인 지배자. 권위적이고 계산적이며, 제국의 안정과 황권 강화를 위해서는 자신의 가족조차 체스판의 말처럼 다루는 냉혹한 통치자.',5)+
+    charBlock('I','👸','로잘린드 아델하이트 아스테른',
+      gi('신분','황후 (46세)')+gi('성향','황후파 / 정통황태자파')+gi('외형','흑발, 적안, 긴머리+히메컷'),
+      '블레어 공작가 출신으로 황궁 권력의 실질적 중심. 우아함 속에 날카로운 칼을 감추고 있으며, 황족 개인의 감정보다는 황실의 체면과 정통성 유지를 최우선으로 여긴다.',5)+
+    charBlock('G','🦁','에드리안 발렌티누스 아스테른',
+      gi('신분','황태자 (25세)')+gi('성향','정통황태자파')+gi('외형','금발, 청안, 짧은머리'),
+      '제국의 공식 후계자. 늘 예민하고 경계심이 많으며 무뚝뚝하다. 치명적인 약점인 극심한 여자 공포증은 기사 노아를 비롯한 극소수의 측근만이 아는 기밀이다.',5)+
+    charBlock('C','🐍','레이너 루시우스 아스테른',
+      gi('신분','2황자 (24세)')+gi('성향','2황자파')+gi('외형','금발, 청안, 짧은머리'),
+      '능글맞은 미소 뒤에 깊은 야심을 숨긴 황자. 황태자와 전면전은 피하면서도 사교계와 귀족들을 교묘히 포섭하며 독자적인 세력을 구축 중이다.',5)+
+    charBlock('T','🧩','리오넬 테오 아스테른',
+      gi('신분','3황자 (12세)')+gi('성향','미성숙·보호대상')+gi('외형','금발, 적안, 짧은머리'),
+      '눈치가 빠르고 조심스러운 성격의 3황자. 황실 정치에 일찍 휘말리며 애정을 갈구하지만 표현이 서툴다.',3,3)+
+    charBlock('U','🧩','엘리제 아리아 아스테른',
+      gi('신분','1황녀 (9세)')+gi('성향','미성숙·보호대상')+gi('외형','흑발, 청안, 긴머리'),
+      '어른스러운 척하지만 깊은 외로움을 감추고 있는 황녀. 황궁 예절에 익숙해졌으나 그만큼 감정을 숨기는 법도 일찍 배웠다.',3,3)+
+    charBlock('J','⚔️','노아 칼릭스 헤이든',
+      gi('신분','황태자전속기사 (28세)')+gi('성향','정통황태자파')+gi('외형','갈색머리, 회안, 짧은머리'),
+      '황태자의 전속 기사이자 황태자의 여자 공포증을 아는 극소수 중 하나. 충직하고 고지식하며, 황태자에 대한 보호 본능이 강하다.',5),
+
+  social:
+    charBlock('B','🌿','세실리아 블랑쉐 로웰',
+      gi('신분','남작영애 (19세)')+gi('성향','친신전파')+gi('외형','긴은발, 녹안, 강아지상'),
+      '진심으로 선하고 자기희생을 마다하지 않는 남작가 영애. 그러나 과한 배려는 주변인들에게 죄책감과 부담감, 때로는 오해를 만들어내기도 한다.',5)+
+    charBlock('L','🎭','미엘라 코렛 바스티앙',
+      gi('신분','백작영애 (19세)')+gi('성향','황후파 / 사교중립파')+gi('외형','분홍머리, 회안, 양갈래'),
+      '귀엽고 허세가 강하며 칭찬에 약한 백작영애. 이벨리나를 추종하며 편을 들다 사고를 치는 경우가 많고, 악의는 거의 없다.',5)+
+    charBlock('M','🌿','로미나 엘레나 페르디',
+      gi('신분','준남작영애 (19세)')+gi('성향','친신전파 / 사교중립파')+gi('외형','짙갈발, 녹안, 단발'),
+      '세실리아의 친구로 보이지만 내면에 시기와 질투, 인정욕구를 품고 있다. 세실리아를 아끼면서도 비교 속에서 자기혐오에 빠지는 복잡한 인물이다.',5)+
+    charBlock('S','🎭','플로라 벨라 로젠느',
+      gi('신분','백작영애 (20세)')+gi('성향','사교중립파')+gi('외형','주황머리, 금안, 긴머리'),
+      '사교파티를 주최하고 인맥을 관리하는 사교계의 정보망 핵심 인물. 활발하고 소문에 밝으며, 초대장 한 장으로 권력을 움직이는 능력을 지녔다.',5)+
+    charBlock('K','🗝','에밀리 브룩',
+      gi('신분','아르덴 후작가 하녀 (22세)')+gi('성향','자기생존파')+gi('외형','갈색머리, 갈색눈, 단발'),
+      '아르덴 후작가의 내부 사정을 속속들이 아는 하녀. 영악하고 눈치가 빠르며 순종을 연기하면서 기회를 엿보는 기회주의적 성향을 지녔다.',5),
+
+  border:
+    charBlock('F','🛡','테오발트 그레이엄 라우엔',
+      gi('신분','변경백 (18세)')+gi('성향','국경방위파 / 반중앙귀족파')+gi('외형','은발, 적안, 짧은머리'),
+      '유약한 척하고 걱정과 관심을 즐기는 변경백. 그러나 실제로는 강하고 전략적이며, 국경 통치와 실전에 단련된 인물이다.',5)+
+    charBlock('Z','🌐','이스마엘 자히르 알카디아',
+      gi('신분','알카디아 왕자 / 볼모 (23세)')+gi('성향','외교중립파')+gi('외형','갈색피부, 흑발, 자안, 장발'),
+      '서쪽 사막 왕국 알카디아의 왕자이자 외교 사절 겸 볼모. 까칠하고 경계심이 강하며 속내를 잘 드러내지 않는다.',5)
+};
+
+/* ════════════════════════════════════
+   웹소설 뷰어 텍스트 (직접 수정)
+════════════════════════════════════ */
+const chapterTexts = {
+  1:`<p>여기에 1화 내용을 입력하세요.</p>`,
+  2:`<p>여기에 2화 내용을 입력하세요.</p>`,
+  3:`<p>여기에 3화 내용을 입력하세요.</p>`
+};
+
+/* ════════════════════════════════════
+   유틸: 모바일 여부 판별
+════════════════════════════════════ */
+function isMobile(){return window.innerWidth<=680;}
+
+/* ════════════════════════════════════
+   책 열기
+════════════════════════════════════ */
+function openBook(){document.getElementById('cover').classList.add('open');}
+
+/* ════════════════════════════════════
+   페이지 전환
+════════════════════════════════════ */
+function turnPage(id){
+  document.querySelectorAll('.right-page').forEach(p=>p.classList.remove('active'));
+  const t=document.getElementById('page-'+id);
+  if(t){t.classList.add('active');t.scrollTop=0;}
+}
+
+/* ════════════════════════════════════
+   인물 표시
+   - PC: 오른쪽 페이지 교체
+   - 모바일: 슬라이드 패널
+════════════════════════════════════ */
+function showCharacter(faction){
+  if(!charData[faction])return;
+  const html=charData[faction];
+  if(isMobile()){
+    // 모바일: 슬라이드 패널 열기
+    const panel=document.getElementById('mobile-char-panel');
+    document.getElementById('mobile-char-content').innerHTML=html;
+    panel.style.display='block';
+    // 약간의 딜레이 후 트랜지션 실행
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      panel.classList.add('open');
+      panel.scrollTop=0;
+    }));
+    document.body.style.overflow='hidden';
+  } else {
+    // PC: 기존 방식
+    document.getElementById('character-content').innerHTML=html;
+    turnPage('character');
+  }
+}
+
+function closeMobilePanel(){
+  const panel=document.getElementById('mobile-char-panel');
+  panel.classList.remove('open');
+  document.body.style.overflow='';
+  setTimeout(()=>{panel.style.display='none';},380);
+}
+
+/* ════════════════════════════════════
+   웹소설 이스터에그
+════════════════════════════════════ */
+let chaptersGenerated=false;
+function triggerEasterEgg(){
+  document.getElementById('book-scene').style.display='none';
+  document.getElementById('webnovel-ui').style.display='block';
+  if(!chaptersGenerated){
+    const c=document.getElementById('chapter-list');
+    for(let i=1;i<=300;i++){
+      const div=document.createElement('div');
+      div.className='ch-item'+(i>3?' locked':'');
+      div.textContent=i+'화';
+      const n=i;
+      div.onclick=function(){i<=3?openViewer(n):alert('[시스템 알림] 재화가 부족합니다!');};
+      c.appendChild(div);
+    }
+    chaptersGenerated=true;
+  }
+}
+function closeWebNovel(){
+  document.getElementById('webnovel-ui').style.display='none';
+  document.getElementById('book-scene').style.display='flex';
+}
+
+/* ════════════════════════════════════
+   뷰어 모달
+════════════════════════════════════ */
+function openViewer(n){
+  document.getElementById('viewer-title').textContent='제 '+n+'화';
+  document.getElementById('viewer-text').innerHTML=chapterTexts[n]||'<p style="color:#aaa;text-align:center;margin-top:60px;">(내용 준비 중)</p>';
+  document.getElementById('viewer-modal').style.display='flex';
+}
+function closeViewer(){document.getElementById('viewer-modal').style.display='none';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeViewer();});
+
+/* 뒤로가기 제스처로 모바일 패널 닫기 */
+window.addEventListener('popstate',()=>{
+  if(document.getElementById('mobile-char-panel').classList.contains('open'))closeMobilePanel();
+});
+</script>
+</body>
+</html>
